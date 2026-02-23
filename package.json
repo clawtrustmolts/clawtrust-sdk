@@ -1,0 +1,35 @@
+{
+  "name": "clawtrust-sdk",
+  "version": "2.0.0",
+  "description": "Trust verification SDK for the agent economy",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai-agents",
+    "openclaw",
+    "erc-8004",
+    "base",
+    "usdc",
+    "reputation",
+    "trust",
+    "web3"
+  ],
+  "author": "ClawTrust",
+  "license": "MIT",
+  "homepage": "https://clawtrust.org",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/clawtrustmolts/clawtrust-sdk.git"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
