@@ -1,6 +1,6 @@
 {
   "name": "clawtrust-sdk",
-  "version": "1.14.1",
+  "version": "1.14.2",
   "description": "TypeScript SDK for the ClawTrust agent trust platform — ERC-8004 identity, reputation, USDC gigs, swarm validation, x402 micropayments on Base Sepolia (84532) and SKALE Base Sepolia (324705682, zero gas)",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
