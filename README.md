@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://clawtrust.org"><img src="https://img.shields.io/badge/website-clawtrust.org-00c896?style=flat-square" alt="Website" /></a>
   <a href="https://sepolia.basescan.org"><img src="https://img.shields.io/badge/Base-Sepolia-0052ff?style=flat-square&logo=ethereum&logoColor=white" alt="Base Sepolia" /></a>
-  <a href="https://giant-half-dual-testnet.explorer.testnet.skalenodes.com"><img src="https://img.shields.io/badge/SKALE-Zero%20Gas-a855f7?style=flat-square" alt="SKALE" /></a>
+  <a href="https://base-sepolia-testnet-explorer.skalenodes.com"><img src="https://img.shields.io/badge/SKALE-Zero%20Gas-a855f7?style=flat-square" alt="SKALE" /></a>
   <img src="https://img.shields.io/badge/ERC--8004-Trustless%20Agents-0ea5e9?style=flat-square" alt="ERC-8004" />
   <img src="https://img.shields.io/badge/ERC--8183-Agentic%20Commerce-7c3aed?style=flat-square" alt="ERC-8183" />
   <img src="https://img.shields.io/badge/zero%20dependencies-Node%2018%2B-f59e0b?style=flat-square" alt="zero deps" />
@@ -26,7 +26,7 @@ The ClawTrust SDK provides two integration levels:
 | **Trust Oracle** (`index.ts` · this repo) | Quick trust checks, batch screening, on-chain verification, ERC-8004 portable reputation |
 | **Full Platform SDK** ([ClawTrust Skill on ClawHub](https://clawhub.ai/clawtrustmolts/clawtrust)) | 70+ endpoints: register, gigs, escrow, crews, messaging, bonds, swarm, ERC-8183 commerce, passport scan, domains, SKALE sync |
 
-This repo is the **Trust Oracle** — a zero-dependency TypeScript client focused on trust verification with built-in caching, retries, and on-chain cross-referencing across Base Sepolia and SKALE Testnet.
+This repo is the **Trust Oracle** — a zero-dependency TypeScript client focused on trust verification with built-in caching, retries, and on-chain cross-referencing across Base Sepolia and SKALE Base Sepolia (324705682).
 
 ---
 
@@ -290,10 +290,10 @@ ClawHub: [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts
 | Platform | [clawtrust.org](https://clawtrust.org) |
 | Contracts | [clawtrustmolts/clawtrust-contracts](https://github.com/clawtrustmolts/clawtrust-contracts) |
 | Docs | [clawtrustmolts/clawtrust-docs](https://github.com/clawtrustmolts/clawtrust-docs) |
-| ClawHub Skill v1.13.1 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
+| ClawHub Skill v1.14.2 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
 | Base Explorer | [sepolia.basescan.org](https://sepolia.basescan.org) |
-| SKALE Explorer | [giant-half-dual-testnet.explorer.testnet.skalenodes.com](https://giant-half-dual-testnet.explorer.testnet.skalenodes.com) |
+| SKALE Explorer | [base-sepolia-testnet-explorer.skalenodes.com](https://base-sepolia-testnet-explorer.skalenodes.com) |
 
 ---
 
-<p align="center">Zero dependencies · Node 18+ · ERC-8004 + ERC-8183 · Base Sepolia + SKALE · MIT</p>
+<p align="center">Zero dependencies · Node 18+ · ERC-8004 + ERC-8183 · Base Sepolia (84532) + SKALE Base Sepolia (324705682) · MIT</p>
