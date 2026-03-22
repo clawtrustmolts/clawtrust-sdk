@@ -5,14 +5,14 @@ import { z } from "zod";
 
 export const gigStatusEnum = pgEnum("gig_status", ["open", "assigned", "in_progress", "pending_validation", "completed", "disputed"]);
 export const currencyEnum = pgEnum("currency", ["ETH", "USDC"]);
-export const chainEnum = pgEnum("chain", ["BASE_SEPOLIA", "SOL_DEVNET"]);
+export const chainEnum = pgEnum("chain", ["BASE_SEPOLIA", "SOL_DEVNET", "SKALE_TESTNET"]);
 export const validationStatusEnum = pgEnum("validation_status", ["pending", "approved", "rejected"]);
 export const voteEnum = pgEnum("vote_type", ["approve", "reject"]);
 export const repSourceEnum = pgEnum("rep_source", ["on_chain", "moltbook", "swarm", "escrow"]);
 export const escrowStatusEnum = pgEnum("escrow_status", ["pending", "locked", "released", "refunded", "disputed"]);
 export const autonomyStatusEnum = pgEnum("autonomy_status", ["pending", "registered", "active"]);
 export const bondTierEnum = pgEnum("bond_tier", ["UNBONDED", "BONDED", "HIGH_BOND"]);
-export const bondEventTypeEnum = pgEnum("bond_event_type", ["DEPOSIT", "WITHDRAW", "LOCK", "UNLOCK", "SLASH"]);
+export const bondEventTypeEnum = pgEnum("bond_event_type", ["DEPOSIT", "WITHDRAW", "LOCK", "UNLOCK", "SLASH", "FLASH_WITHDRAW"]);
 export const riskFactorEnum = pgEnum("risk_factor", ["SLASH", "FAILED_GIG", "DISPUTE_OPENED", "DISPUTE_RESOLVED", "INACTIVITY", "BOND_DEPLETION"]);
 
 export const agents = pgTable("agents", {
@@ -50,6 +50,7 @@ export const agents = pgTable("agents", {
   lastHeartbeat: timestamp("last_heartbeat"),
   registeredAt: timestamp("registered_at").defaultNow(),
   officialRegistryAgentId: text("official_registry_agent_id"),
+  verifiedSkills: text("verified_skills").array().notNull().default(sql`'{}'::text[]`),
 });
 
 export const gigs = pgTable("gigs", {
@@ -367,8 +368,10 @@ export const insertSecurityLogSchema = createInsertSchema(securityLogs).omit({ i
 export type InsertSecurityLog = z.infer<typeof insertSecurityLogSchema>;
 export type SecurityLog = typeof securityLogs.$inferSelect;
 
-export const insertAgentSchema = createInsertSchema(agents).omit({ id: true, registeredAt: true, fusedScore: true, totalGigsCompleted: true, totalEarned: true, isVerified: true, lastHeartbeat: true, bondWalletId: true, totalBonded: true, availableBond: true, lockedBond: true, bondTier: true, bondReliability: true, performanceScore: true, riskIndex: true, cleanStreakDays: true, lastRiskUpdate: true, lastSlashAt: true });
-export const insertGigSchema = createInsertSchema(gigs).omit({ id: true, createdAt: true, assigneeId: true, escrowTxHash: true, bondLocked: true });
+export const insertAgentSchema = createInsertSchema(agents).omit({ id: true, registeredAt: true, fusedScore: true, totalGigsCompleted: true, totalEarned: true, isVerified: true, lastHeartbeat: true, bondWalletId: true, totalBonded: true, availableBond: true, lockedBond: true, bondTier: true, bondReliability: true, performanceScore: true, riskIndex: true, cleanStreakDays: true, lastRiskUpdate: true, lastSlashAt: true, verifiedSkills: true });
+export const insertGigSchema = createInsertSchema(gigs).omit({ id: true, createdAt: true, assigneeId: true, escrowTxHash: true, bondLocked: true }).extend({
+  budget: z.coerce.number().min(0, "Budget must be non-negative"),
+});
 export const insertReputationEventSchema = createInsertSchema(reputationEvents).omit({ id: true, createdAt: true });
 export const insertSwarmValidationSchema = createInsertSchema(swarmValidations).omit({ id: true, createdAt: true, votesFor: true, votesAgainst: true });
 export const insertSwarmVoteSchema = createInsertSchema(swarmVotes).omit({ id: true, createdAt: true, rewardClaimed: true });
@@ -388,22 +391,39 @@ export const registerAgentSchema = z.object({
   handle: z.string().min(3).max(32).regex(/^[a-zA-Z0-9_-]+$/, "Handle must be alphanumeric with dashes/underscores"),
   walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Must be a valid Ethereum address"),
   solanaAddress: z.string().min(32).max(44).optional().nullable(),
-  skills: z.array(z.string()).min(1, "At least one skill required"),
+  skills: z.preprocess(
+    (val) =>
+      Array.isArray(val)
+        ? val.map((s: any) =>
+            typeof s === "object" && s !== null
+              ? String(s.name ?? s.label ?? "").trim()
+              : String(s).trim()
+          ).filter(Boolean)
+        : val,
+    z.array(z.string().min(1).max(100)).min(1, "At least one skill required").max(20)
+  ),
   bio: z.string().max(500).optional(),
   avatar: z.string().url().optional().nullable(),
   metadataUri: z.string().url().optional().nullable(),
   moltbookLink: z.string().url().optional().nullable(),
 });
 
-export const autonomousRegisterSchema = z.object({
-  handle: z.string().min(3).max(32).regex(/^[a-zA-Z0-9_-]+$/, "Handle must be alphanumeric with dashes/underscores"),
-  skills: z.array(z.object({
+const skillEntrySchema = z.union([
+  z.string().min(1).max(100).transform((s) => ({ name: s, mcpEndpoint: undefined, desc: undefined })),
+  z.object({
     name: z.string().min(1).max(100),
     mcpEndpoint: z.string().url().optional(),
     desc: z.string().max(500).optional(),
-  })).min(1, "At least one skill required"),
+  }),
+]);
+
+export const autonomousRegisterSchema = z.object({
+  handle: z.string().min(3).max(32).regex(/^[a-zA-Z0-9_-]+$/, "Handle must be alphanumeric with dashes/underscores"),
+  skills: z.array(skillEntrySchema).min(1, "At least one skill required"),
   moltbookLink: z.string().url().optional().nullable(),
   bio: z.string().max(500).optional(),
+  chain: z.enum(["BASE_SEPOLIA", "SKALE_TESTNET"]).optional().default("BASE_SEPOLIA"),
+  walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/).optional(),
 });
 
 export const moltSyncSchema = z.object({
@@ -497,7 +517,7 @@ export const createCrewSchema = z.object({
   members: z.array(z.object({
     agentId: z.string(),
     role: z.enum(["LEAD", "RESEARCHER", "CODER", "DESIGNER", "VALIDATOR"]),
-  })).min(2, "A crew needs at least 2 agents").max(10),
+  })).min(1, "A crew needs at least 1 agent").max(10),
 });
 
 export type Crew = typeof crews.$inferSelect;
