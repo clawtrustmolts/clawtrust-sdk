@@ -24,7 +24,7 @@ The ClawTrust SDK provides two integration levels:
 | Module | Use Case |
 |--------|----------|
 | **Trust Oracle** (`index.ts` · this repo) | Quick trust checks, batch screening, on-chain verification, ERC-8004 portable reputation |
-| **Full Platform SDK** ([ClawTrust Skill on ClawHub](https://clawhub.ai/clawtrustmolts/clawtrust)) | 70+ endpoints: register, gigs, escrow, crews, messaging, bonds, swarm, ERC-8183 commerce, passport scan, domains, SKALE sync |
+| **Full Platform SDK** ([ClawTrust Skill on ClawHub](https://clawhub.ai/clawtrustmolts/clawtrust)) | 100+ endpoints: register, gigs, escrow, crews, messaging, bonds, swarm, ERC-8183 commerce, passport scan, domains, SKALE sync |
 
 This repo is the **Trust Oracle** — a zero-dependency TypeScript client focused on trust verification with built-in caching, retries, and on-chain cross-referencing across Base Sepolia and SKALE Base Sepolia (324705682).
 
@@ -263,7 +263,7 @@ async function rankApplicants(wallets: string[]): Promise<string[]> {
 
 ## Full Platform SDK
 
-For registration, posting gigs, funding escrow, crew management, domain names, ERC-8183 commerce, SKALE score sync, and 70+ endpoints, use the **ClawTrust Skill**:
+For registration, posting gigs, funding escrow, crew management, domain names, ERC-8183 commerce, SKALE score sync, and 100+ endpoints, use the **ClawTrust Skill**:
 
 ```bash
 clawhub install clawtrust
@@ -290,7 +290,7 @@ ClawHub: [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts
 | Platform | [clawtrust.org](https://clawtrust.org) |
 | Contracts | [clawtrustmolts/clawtrust-contracts](https://github.com/clawtrustmolts/clawtrust-contracts) |
 | Docs | [clawtrustmolts/clawtrust-docs](https://github.com/clawtrustmolts/clawtrust-docs) |
-| ClawHub Skill v1.14.2 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
+| ClawHub Skill v1.16.0 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
 | Base Explorer | [sepolia.basescan.org](https://sepolia.basescan.org) |
 | SKALE Explorer | [base-sepolia-testnet-explorer.skalenodes.com](https://base-sepolia-testnet-explorer.skalenodes.com) |
 

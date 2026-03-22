@@ -6,11 +6,28 @@ export enum ChainId {
 export interface ChainConfig {
   chainId: number;
   name: string;
+  /**
+   * Reference RPC URL for chain identification only.
+   * The ClawTrust SDK never calls this URL directly.
+   * All blockchain reads/writes go through https://clawtrust.org/api server-side.
+   * This field is provided so developers can verify chain identity and connect
+   * their own wallet providers (MetaMask, viem, ethers.js) to the correct network.
+   */
   rpcUrl: string;
   blockExplorerUrl: string;
   contracts: {
     ClawCardNFT: string;
+    /**
+     * ERC-8004 Identity Registry for this chain.
+     * Base Sepolia: ClawTrust's own identity registry (0xBeb8a61b...).
+     * SKALE Base Sepolia: canonical global registry from erc-8004-contracts PR #56.
+     */
     ERC8004IdentityRegistry: string;
+    /**
+     * ERC-8004 Reputation Registry for this chain.
+     * Base Sepolia: ClawTrustRepAdapter serves this role (no standalone registry).
+     * SKALE Base Sepolia: canonical global registry from erc-8004-contracts PR #56.
+     */
     ERC8004ReputationRegistry: string;
     ClawTrustEscrow: string;
     ClawTrustRepAdapter: string;
@@ -23,6 +40,12 @@ export interface ChainConfig {
   usdc: string;
 }
 
+/**
+ * Base Sepolia (chainId 84532) — primary ClawTrust chain.
+ *
+ * NOTE: rpcUrl is reference metadata only. The SDK never calls it directly.
+ * All API calls go through https://clawtrust.org/api server-side.
+ */
 export const BASE_CONFIG: ChainConfig = {
   chainId: 84532,
   name: "Base Sepolia",
@@ -30,21 +53,30 @@ export const BASE_CONFIG: ChainConfig = {
   blockExplorerUrl: "https://sepolia.basescan.org",
   contracts: {
     ClawCardNFT:                "0xf24e41980ed48576Eb379D2116C1AaD075B342C4",
-    ERC8004IdentityRegistry:    "0x8004A818BFB912233c491871b3d84c89A494BD9e",
-    ERC8004ReputationRegistry:  "0x8004B663056A597Dffe9eCcC1965A193B7388713",
-    ClawTrustEscrow:            "0xc9F6cd333147F84b249fdbf2Af49D45FD72f2302",
-    ClawTrustRepAdapter:        "0xecc00bbE268Fa4D0330180e0fB445f64d824d818",
-    ClawTrustSwarmValidator:    "0x7e1388226dCebe674acB45310D73ddA51b9C4A06",
+    // ClawTrust ERC-8004 Identity Registry on Base Sepolia (not the SKALE canonical)
+    ERC8004IdentityRegistry:    "0xBeb8a61b6bBc53934f1b89cE0cBa0c42830855CF",
+    // Base Sepolia has no standalone ERC-8004 reputation registry;
+    // ClawTrustRepAdapter fulfills this role.
+    ERC8004ReputationRegistry:  "0xEfF3d3170e37998C7db987eFA628e7e56E1866DB",
+    ClawTrustEscrow:            "0x6B676744B8c4900F9999E9a9323728C160706126",
+    ClawTrustRepAdapter:        "0xEfF3d3170e37998C7db987eFA628e7e56E1866DB",
+    ClawTrustSwarmValidator:    "0xb219ddb4a65934Cea396C606e7F6bcfBF2F68743",
     ClawTrustBond:              "0x23a1E1e958C932639906d0650A13283f6E60132c",
     ClawTrustCrew:              "0xFF9B75BD080F6D2FAe7Ffa500451716b78fde5F3",
-    ClawTrustRegistry:          "0x53ddb120f05Aa21ccF3f47F3Ed79219E3a3D94e4",
+    ClawTrustRegistry:          "0x950aa4E7300e75e899d37879796868E2dd84A59c",
     ClawTrustAC:                "0x1933D67CDB911653765e84758f47c60A1E868bC0",
   },
   usdc: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
 };
 
-// SKALE Base Sepolia — deployed 2026-03-18 via scripts/deploy-skale-base.mjs
-// Canonical ERC-8004 addresses from erc-8004-contracts PR #56 (TheGreatAxios / Sawyer Cutler)
+/**
+ * SKALE Base Sepolia (chainId 324705682) — zero gas, BITE encrypted, sub-second finality.
+ * Deployed 2026-03-18 via scripts/deploy-skale-base.mjs.
+ * ERC-8004 canonical addresses from erc-8004-contracts PR #56 (TheGreatAxios / Sawyer Cutler).
+ *
+ * NOTE: rpcUrl is reference metadata only. The SDK never calls it directly.
+ * All API calls go through https://clawtrust.org/api server-side.
+ */
 export const SKALE_CONFIG: ChainConfig = {
   chainId: 324705682,
   name: "SKALE Base Sepolia",
@@ -52,7 +84,9 @@ export const SKALE_CONFIG: ChainConfig = {
   blockExplorerUrl: "https://base-sepolia-testnet-explorer.skalenodes.com",
   contracts: {
     ClawCardNFT:                "0xdB7F6cCf57D6c6AA90ccCC1a510589513f28cb83",
+    // Canonical global ERC-8004 identity registry from erc-8004-contracts PR #56
     ERC8004IdentityRegistry:    "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    // Canonical global ERC-8004 reputation registry from erc-8004-contracts PR #56
     ERC8004ReputationRegistry:  "0x8004B663056A597Dffe9eCcC1965A193B7388713",
     ClawTrustEscrow:            "0x39601883CD9A115Aba0228fe0620f468Dc710d54",
     ClawTrustRepAdapter:        "0xFafCA23a7c085A842E827f53A853141C8243F924",
