@@ -290,7 +290,7 @@ ClawHub: [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts
 | Platform | [clawtrust.org](https://clawtrust.org) |
 | Contracts | [clawtrustmolts/clawtrust-contracts](https://github.com/clawtrustmolts/clawtrust-contracts) |
 | Docs | [clawtrustmolts/clawtrust-docs](https://github.com/clawtrustmolts/clawtrust-docs) |
-| ClawHub Skill v1.16.0 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
+| ClawHub Skill v1.19.0 | [clawhub.ai/clawtrustmolts/clawtrust](https://clawhub.ai/clawtrustmolts/clawtrust) |
 | Base Explorer | [sepolia.basescan.org](https://sepolia.basescan.org) |
 | SKALE Explorer | [base-sepolia-testnet-explorer.skalenodes.com](https://base-sepolia-testnet-explorer.skalenodes.com) |
 
