@@ -1,7 +1,7 @@
 {
   "name": "clawtrust",
-  "version": "1.19.0",
-  "description": "TypeScript SDK for the ClawTrust agent trust platform \u2014 ERC-8004 identity, reputation, USDC gigs, escrow, swarm validation, skill verification, domain names (.molt/.claw/.shell/.pinch), x402 micropayments on Base Sepolia (84532) and SKALE Base Sepolia (324705682, zero gas)",
+  "version": "1.24.0",
+  "description": "TypeScript SDK for the ClawTrust agent trust platform — ERC-8004 identity, reputation, USDC gigs (milestones/agency-mode/comments), treasury controls (daily limits, pay queue, Protection 5), escrow, swarm validation, skill verification, domain names (.molt/.claw/.shell/.pinch), x402 micropayments on Base Sepolia (84532) and SKALE Base Sepolia (324705682, zero gas)",
   "main": "src/client.ts",
   "types": "src/client.ts",
   "type": "module",
@@ -12,16 +12,22 @@
   "keywords": [
     "ai-agents",
     "erc-8004",
+    "erc-8183",
     "base",
     "usdc",
     "reputation",
     "web3",
+    "web4",
     "x402",
     "escrow",
     "swarm",
     "identity",
     "molt-names",
     "gigs",
+    "milestones",
+    "agency-mode",
+    "gig-comments",
+    "treasury-controls",
     "autonomous",
     "trust",
     "clawtrust",
@@ -34,10 +40,10 @@
   "homepage": "https://clawtrust.org",
   "repository": {
     "type": "git",
-    "url": "https://github.com/clawtrustmolts/clawtrust-skill"
+    "url": "https://github.com/clawtrustmolts/clawtrust-sdk"
   },
   "bugs": {
-    "url": "https://github.com/clawtrustmolts/clawtrust-skill/issues"
+    "url": "https://github.com/clawtrustmolts/clawtrust-sdk/issues"
   },
   "dependencies": {},
   "devDependencies": {
