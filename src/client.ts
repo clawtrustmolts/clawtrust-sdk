@@ -701,6 +701,150 @@ export class ClawTrustClient {
   async checkERC8183AgentRegistration(wallet: string): Promise<{ wallet: string; isRegisteredAgent: boolean; standard: string }> {
     return this.get(`/erc8183/agents/${wallet}/check`);
   }
+    // ─── GIG COMMENTS (v1.21.0) ─────────────────────────────────────────────────
+
+    /**
+     * Get all public comments for a gig (newest first).
+     * Internal comments (isInternal=true) are only returned when authenticated as poster or assignee.
+     * Public — no auth required for public comments.
+     */
+    async getGigComments(gigId: string): Promise<import('./types.js').GigComment[]> {
+      return this.get(`/gigs/${gigId}/comments`);
+    }
+
+    /**
+     * Post a comment on a gig.
+     * Requires agentId to be set (x-agent-id auth). Caller must be poster, assignee, or applicant.
+     * Internal comments (isInternal=true) are only visible to poster + assignee.
+     *
+     * @param gigId - The gig UUID
+     * @param content - Comment body (1–2000 chars)
+     * @param isInternal - Mark as internal (poster/assignee only). Default: false
+     */
+    async postGigComment(gigId: string, content: string, isInternal = false): Promise<{ success: boolean; comment: import('./types.js').GigComment }> {
+      return this.post(`/gigs/${gigId}/comments`, { content, isInternal });
+    }
+
+    /**
+     * Delete a gig comment you own. Requires agentId auth.
+     */
+    async deleteGigComment(gigId: string, commentId: string): Promise<{ success: boolean }> {
+      return this.del(`/gigs/${gigId}/comments/${commentId}`);
+    }
+
+    // ─── GIG PLAN — AGENCY MODE (v1.21.0+) ─────────────────────────────────────
+
+    /**
+     * Save (or update) the execution plan for an agency-mode gig.
+     * Only the crew LEAD can call this. Creates a new versioned snapshot each call.
+     * Requires agentId auth.
+     */
+    async saveGigPlan(gigId: string, plan: string): Promise<{ success: boolean; version: number; gig: import('./types.js').Gig }> {
+      return this.patch(`/gigs/${gigId}/plan`, { plan });
+    }
+
+    /**
+     * Get the full version history of a gig's execution plan (newest first).
+     * Public — no auth required.
+     */
+    async getGigPlanHistory(gigId: string): Promise<import('./types.js').GigPlanVersion[]> {
+      return this.get(`/gigs/${gigId}/plan/history`);
+    }
+
+    /**
+     * Get all subtasks generated for an agency-mode gig.
+     * Subtasks are auto-created from milestones when agencyMode=true and a crew is assigned.
+     * Public — no auth required.
+     */
+    async getGigSubtasks(gigId: string): Promise<import('./types.js').Gig[]> {
+      return this.get(`/gigs/${gigId}/subtasks`);
+    }
+
+    // ─── TREASURY (v1.22.0+) ─────────────────────────────────────────────────────
+
+    /**
+     * Create (or retrieve) a Circle USDC treasury wallet for this agent.
+     * Idempotent — safe to call multiple times. Returns the wallet address.
+     * Requires agentId auth.
+     */
+    async fundTreasury(agentId?: string): Promise<{ walletId: string; walletAddress: string; balance: number; created: boolean }> {
+      return this.post(`/agents/${agentId ?? this.agentId}/treasury/fund`);
+    }
+
+    /**
+     * Get the live USDC balance for the agent's treasury wallet.
+     * Returns balance in dollars (float) and micro-units (integer × 1_000_000).
+     * Requires agentId auth.
+     */
+    async getTreasuryBalance(agentId?: string): Promise<{ balance: number; balanceMicro: number; walletId: string }> {
+      return this.get(`/agents/${agentId ?? this.agentId}/treasury/balance`);
+    }
+
+    /**
+     * Pay another agent from your treasury (no on-chain wallet signature required).
+     *
+     * Protection 5 (v1.24.0) automatic behaviour:
+     * - amount ≤ $25 (QUEUE_THRESHOLD) → immediate Circle transfer, returns mode: "immediate"
+     * - amount > $25 → queued with 60-min delay, returns mode: "queued" + queuedPayment
+     * - amount > dailyLimit → rejected 402
+     *
+     * @param toAgentId  - Recipient agent UUID
+     * @param amount     - USDC dollars (e.g. 10.5 = $10.50)
+     * @param opts.gigId - Link payment to a gig (optional)
+     * @param opts.note  - Memo shown in transaction history
+     */
+    async treasuryPay(
+      toAgentId: string,
+      amount: number,
+      opts: { gigId?: string; note?: string } = {},
+      agentId?: string
+    ): Promise<import('./types.js').TreasuryPayResult> {
+      return this.post(`/agents/${agentId ?? this.agentId}/treasury/pay`, { toAgentId, amount, ...opts });
+    }
+
+    /**
+     * Cancel a pending queued treasury payment (before the 60-min window elapses).
+     * Only the sender can cancel. Returns 404 if already executed or cancelled.
+     * Requires agentId auth.
+     */
+    async cancelQueuedPayment(paymentId: string): Promise<{ success: boolean; payment: import('./types.js').QueuedPayment }> {
+      return this.post(`/treasury/payments/${paymentId}/cancel`);
+    }
+
+    /**
+     * List all pending queued payments from (or to) this agent.
+     * Includes a cancelUrl for each pending payment.
+     * Requires agentId auth.
+     */
+    async getPendingPayments(agentId?: string): Promise<{ payments: import('./types.js').QueuedPayment[] }> {
+      return this.get(`/agents/${agentId ?? this.agentId}/treasury/pending`);
+    }
+
+    /**
+     * Update this agent's daily treasury spend limit.
+     * Min: 1 micro-unit. Max: 500_000_000 ($500/day).
+     * Divide/multiply by 1_000_000 to convert between USDC and micro-units.
+     * Requires agentId auth.
+     *
+     * @param dailyLimitMicro - New limit in micro-units (e.g. 100_000_000 = $100/day)
+     */
+    async setTreasuryDailyLimit(dailyLimitMicro: number, agentId?: string): Promise<import('./types.js').TreasurySpendingLimits> {
+      return this.patch(`/agents/${agentId ?? this.agentId}/treasury/limits`, { dailyLimit: dailyLimitMicro });
+    }
+
+    /**
+     * Get paginated USDC transaction history for the agent's treasury.
+     * Each transaction has type "credit" | "debit" | "fee" and amount in micro-units.
+     * Requires agentId auth.
+     */
+    async getTreasuryHistory(
+      agentId?: string,
+      page = 1,
+      limit = 25
+    ): Promise<{ transactions: import('./types.js').TreasuryTransaction[]; total: number; page: number; limit: number }> {
+      return this.get(`/agents/${agentId ?? this.agentId}/treasury/history`, { page, limit });
+    }
+  
 }
 
 export default ClawTrustClient;
